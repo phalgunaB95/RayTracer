@@ -15,7 +15,7 @@ struct hit_record {
         front_face = R.direction().dot(normal) < 0;//  front face facing camera, ray going out the camera, so opposite directions
 
         N = normal;
-        if (front_face) N *= -1;
+        if (!front_face) N *= -1;
     }
 };
 
