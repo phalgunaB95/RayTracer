@@ -47,6 +47,7 @@ public:
                       coordinates[2] + other.coordinates[2]);
     }
 
+
     __device__ __host__ vector operator-(const vector &other) const {
         return vector(coordinates[0] - other.coordinates[0],
                       coordinates[1] - other.coordinates[1],
@@ -56,9 +57,42 @@ public:
     __device__ __host__ vector operator*(float scalar) const {
         return vector(coordinates[0] * scalar, coordinates[1] * scalar, coordinates[2] * scalar);
     }
+    __device__ __host__ friend vector operator*(float scalar, const vector &v) {
+        return v * scalar;
+    }
 
     __device__ __host__ vector operator/(float scalar) const {
         return vector(coordinates[0] / scalar, coordinates[1] / scalar, coordinates[2] / scalar);
+    }
+
+    __device__ __host__ vector operator+=(const vector &other) {
+        coordinates[0] += other.coordinates[0];
+        coordinates[1] += other.coordinates[1];
+        coordinates[2] += other.coordinates[2];
+        return *this;
+    }
+
+    __device__ __host__ vector operator-=(const vector &other) {
+        coordinates[0] -= other.coordinates[0];
+        coordinates[1] -= other.coordinates[1];
+        coordinates[2] -= other.coordinates[2];
+        return *this;
+    }
+
+    __device__ __host__ vector &operator*=(float scalar) {
+        coordinates[0] *= scalar;
+        coordinates[1] *= scalar;
+        coordinates[2] *= scalar;
+        return *this;
+    }
+
+    __device__ __host__ vector &operator/=(float scalar) {
+        const float epsilon = 1e-8f;// Small number to avoid division by zero
+        coordinates[0] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
+        coordinates[1] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
+        coordinates[2] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
+
+        return *this;
     }
 
     __device__ __host__ float dot(const vector &other) const {
