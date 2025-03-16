@@ -15,16 +15,16 @@ public:
     int num_pixels;
     color3 *buffer;
 
-    ImgBuffer(int w, int h) : width(w), height(h), num_pixels(w * h) {
+    ImgBuffer(int const w, int const h) : width(w), height(h), num_pixels(w * h) {
 
 
 #ifdef DEBUG
         std::clog << "RayTracer::Debug::Host memory alloc" << std::endl;
         buffer = new color3[num_pixels];
 #else
-        auto buffer_size = num_pixels * sizeof(color3);
-        std::clog << "RayTracer::Cuda memory alloc" << std::endl;
-        checkCudaErrors(cudaMallocManaged((void **) &buffer, buffer_size));
+        auto const buffer_size = num_pixels * sizeof(color3);
+        std::clog << "rayTracer::cuda memory alloc" << std::endl;
+        checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&buffer), buffer_size));
         checkCudaErrors(cudaMemset(buffer, 0, buffer_size));
 #endif
     }
@@ -34,7 +34,7 @@ public:
         std::clog << "RayTracer::Debug::Host memory dealloc" << std::endl;
         delete[] buffer;
 #else
-        std::clog << "RayTracer::Cuda memory dealloc" << std::endl;
+        std::clog << "rayTracer::cuda memory dealloc" << std::endl;
         checkCudaErrors(cudaFree(buffer));
 #endif
     }
@@ -47,7 +47,7 @@ public:
             output_buffer[3 * i + 2] = static_cast<unsigned char>(std::clamp(buffer[i].b() * 255.0f, 0.0f, 255.0f));
         }
         if (!stbi_write_png(filename.c_str(), width, height, 3, output_buffer.data(), width * 3))
-            std::cerr << "Error: Failed to write image!" << std::endl;
+            std::cerr << "ERROR: Failed to write image!" << std::endl;
     }
 };
 

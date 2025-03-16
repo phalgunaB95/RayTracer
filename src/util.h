@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define checkCudaErrors(val) check_cuda((val), #val, __FILE__, __LINE__)
-void check_cuda(cudaError_t result, const char *func, const char *file, int line) {
+inline void check_cuda(const cudaError_t result, const char *func, const char *file, const int line) {
     if (result != cudaSuccess) {
         std::cerr << "CUDA error = " << cudaGetErrorString(result) << " (code "
                   << static_cast<unsigned int>(result) << ") at "
@@ -14,5 +14,10 @@ void check_cuda(cudaError_t result, const char *func, const char *file, int line
         exit(EXIT_FAILURE);
     }
 }
+
+
+constexpr float pi  = 3.1415926536897932385;
+constexpr float inf = std::numeric_limits<float>::max();
+
 
 #endif// CUDA_UTIL_H
