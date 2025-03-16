@@ -15,16 +15,16 @@ public:
     int num_pixels;
     color3 *buffer;
 
-    ImgBuffer(int w, int h) : width(w), height(h), num_pixels(w * h) {
+    ImgBuffer(int const w, int const h) : width(w), height(h), num_pixels(w * h) {
 
 
 #ifdef DEBUG
         std::clog << "RayTracer::Debug::Host memory alloc" << std::endl;
         buffer = new color3[num_pixels];
 #else
-        auto buffer_size = num_pixels * sizeof(color3);
+        auto const buffer_size = num_pixels * sizeof(color3);
         std::clog << "RayTracer::Cuda memory alloc" << std::endl;
-        checkCudaErrors(cudaMallocManaged((void **) &buffer, buffer_size));
+        checkCudaErrors(cudaMallocManaged(reinterpret_cast<void **>(&buffer), buffer_size));
         checkCudaErrors(cudaMemset(buffer, 0, buffer_size));
 #endif
     }

@@ -16,7 +16,7 @@ public:
     __device__ __host__ vector(const vector &other)     = default;
     __device__ __host__ vector(vector &&other) noexcept = default;
 
-    __device__ __host__ vector(float x, float y, float z) : coordinates{x, y, z} {}
+    __device__ __host__ vector(float const x, float const y, float const z) : coordinates{x, y, z} {}
 
     __device__ __host__ vector &operator=(const vector &)     = default;
     __device__ __host__ vector &operator=(vector &&) noexcept = default;
@@ -29,9 +29,9 @@ public:
     __device__ __host__ float g() const { return coordinates[1]; }
     __device__ __host__ float b() const { return coordinates[2]; }
 
-    __device__ __host__ float &operator[](std::size_t index) { return coordinates[index]; }
+    __device__ __host__ float &operator[](std::size_t const index) { return coordinates[index]; }
 
-    __device__ __host__ float operator[](std::size_t index) const {
+    __device__ __host__ float operator[](std::size_t const index) const {
         return coordinates[index];
     }
 
@@ -54,14 +54,21 @@ public:
                       coordinates[2] - other.coordinates[2]);
     }
 
-    __device__ __host__ vector operator*(float scalar) const {
+
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+    __device__ __host__ vector operator*(T const scalar) const {
         return vector(coordinates[0] * scalar, coordinates[1] * scalar, coordinates[2] * scalar);
     }
-    __device__ __host__ friend vector operator*(float scalar, const vector &v) {
+
+
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+    __device__ __host__ friend vector operator*(T const scalar, const vector &v) {
         return v * scalar;
     }
 
-    __device__ __host__ vector operator/(float scalar) const {
+
+    template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+    __device__ __host__ vector operator/(T const scalar) const {
         return vector(coordinates[0] / scalar, coordinates[1] / scalar, coordinates[2] / scalar);
     }
 
@@ -79,18 +86,18 @@ public:
         return *this;
     }
 
-    __device__ __host__ vector &operator*=(float scalar) {
+    __device__ __host__ vector &operator*=(float const scalar) {
         coordinates[0] *= scalar;
         coordinates[1] *= scalar;
         coordinates[2] *= scalar;
         return *this;
     }
 
-    __device__ __host__ vector &operator/=(float scalar) {
-        const float epsilon = 1e-8f;// Small number to avoid division by zero
-        coordinates[0] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
-        coordinates[1] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
-        coordinates[2] /= (std::abs(scalar) > epsilon ? scalar : epsilon);
+    __device__ __host__ vector &operator/=(float const scalar) {
+        constexpr float epsilon = 1e-8f;// Small number to avoid division by zero
+        coordinates[0] /= std::abs(scalar) > epsilon ? scalar : epsilon;
+        coordinates[1] /= std::abs(scalar) > epsilon ? scalar : epsilon;
+        coordinates[2] /= std::abs(scalar) > epsilon ? scalar : epsilon;
 
         return *this;
     }
@@ -108,8 +115,8 @@ public:
     }
 
     __device__ __host__ vector unit() const & {
-        auto magnitude = norm();
-        return (magnitude == 0.0f) ? vector(0, 0, 0) : (*this) / magnitude;
+        auto const magnitude = norm();
+        return magnitude == 0.0f ? vector(0, 0, 0) : *this / magnitude;
     }
 
 
